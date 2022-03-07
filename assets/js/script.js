@@ -208,7 +208,7 @@ let loadTasks = () => {
     // iterate through a tasks array and create task elements on the page from it
     let savedTasks = localStorage.getItem('tasks');
 
-    if(!tasks) {
+    if(!savedTasks) {
         return false;
     }
     console.log('Saved tasks not found');
