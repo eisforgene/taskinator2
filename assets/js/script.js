@@ -19,7 +19,8 @@ let taskFormHandler = (event) => {
         return false;
     }
 
-    formEl.reset();
+    document.querySelector("input[name='task-name']").value = "";
+    document.querySelector("select[name='task-type']").selectedIndex = 0;
 
     let isEdit = formEl.hasAttribute('data-task-id');
     
@@ -49,12 +50,24 @@ let createTaskEl = (taskDataObj) => {
 
     let taskActionsEl = createTaskActions(taskIdCounter);
     listItemEl.appendChild(taskActionsEl);
-    tasksToDoEl.appendChild(listItemEl);
+    
+    if(taskDataObj.status === 'to do') {
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
+          tasksToDoEl.append(listItemEl);
+    } else if (taskDataObj.status === 'to do') {
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
+          tasksInProgressEl.append(listItemEl);
+    } else if (taskDataObj.status === 'to do') {         
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
+          tasksCompletedEl.append(listItemEl); 
+    }
 
     taskDataObj.id = taskIdCounter;
+
     tasks.push(taskDataObj);
 
     saveTasks();
+
     taskIdCounter++;
 }
 
@@ -96,6 +109,7 @@ let createTaskActions = (taskId) => {
 let completeEditTask = (taskName, taskType, taskId) => {
     let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
+    //set new values
     taskSelected.querySelector("h3.task-name").textContent = taskName;
     taskSelected.querySelector("span.task-type").textContent = taskType;
 
@@ -148,6 +162,7 @@ let taskStatusChangeHandler = (event) => {
             tasks[i].status = statusValue;
         }
     }
+    
     saveTasks();
 }
 
@@ -167,11 +182,11 @@ let editTask = (taskId) => {
 }
 
 let deleteTask = (taskId) => {
-    let updatedTaskArr = [];
-
     console.log(taskId);
     let taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.remove();
+
+    let updatedTaskArr = [];
 
     for(let i = 0; i < tasks.length; i++) {
         if (tasks[i].id !== parseInt(taskId)) {
@@ -187,9 +202,28 @@ let saveTasks = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
+let loadTasks = () => {
+    // get task items
+    // convert tasks from the string format back into array of objects
+    // iterate through a tasks array and create task elements on the page from it
+    let savedTasks = localStorage.getItem('tasks');
+
+    if(!tasks) {
+        return false;
+    }
+    console.log('Saved tasks not found');
+
+    savedTasks = JSON.parse(savedTasks);
+
+    for(let i = 0; i < savedTasks.length; i++) {
+        createTaskEl(savedTasks[i]);
+    }
+}
+
 formEl.addEventListener('submit', taskFormHandler);
 
 pageContentEl.addEventListener('click', taskButtonHandler);
 
 pageContentEl.addEventListener('change', taskStatusChangeHandler);
 
+loadTasks();
